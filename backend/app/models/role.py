@@ -1,5 +1,5 @@
 from peewee import *
-from .base import BaseModel
+from app.models.base import BaseModel
 
 class Role(BaseModel):
     display_name = CharField()

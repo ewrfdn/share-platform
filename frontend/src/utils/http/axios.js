@@ -7,7 +7,7 @@ const ContentType = {
   formData: 'multipart/form-data'
 }
 
-const baseURL = "http://localhost:8000/"
+const baseURL = "http://localhost:5000/"
 // const baseURL = "http://123.60.53.33:31106/v1/"
 
 const axiosInstance = axios.create({
@@ -53,7 +53,7 @@ axiosInstance.interceptors.response.use(
     const result = error.response
     if (result) {
       const { data } = result
-      message.error(data.errorMessage)
+      message.error(data.message)
     } else if (msg) {
       if (msg === 'Network Error') {
         message.error('网络错误,请检查网络!')

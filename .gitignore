@@ -1,0 +1,11 @@
+/share_material_venv
+/mysql
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info
+dist/
+build/

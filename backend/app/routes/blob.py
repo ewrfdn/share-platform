@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
-from ..services.blob_service import BlobService
-from ..utils.jwt import jwt_required
+from app.services.blob_service import BlobService
+from app.utils.jwt import jwt_required
 
 blob_bp = Blueprint('blob', __name__)
 
-@blob_bp.route('/upload', methods=['POST'])
 @jwt_required
+@blob_bp.route('/upload', methods=['POST'])
 def upload_file():
     """上传文件"""
     if 'file' not in request.files:
@@ -27,8 +27,8 @@ def upload_file():
     except Exception as e:
         return jsonify({'message': f'上传失败: {str(e)}'}), 500
 
-@blob_bp.route('/<int:blob_id>', methods=['GET'])
 @jwt_required
+@blob_bp.route('/preview/<int:blob_id>', methods=['GET'])
 def get_file(blob_id):
     """获取文件"""
     try:
@@ -38,8 +38,8 @@ def get_file(blob_id):
     except Exception as e:
         return jsonify({'message': f'获取文件失败: {str(e)}'}), 500
 
-@blob_bp.route('/<int:blob_id>', methods=['DELETE'])
 @jwt_required
+@blob_bp.route('/delete/<int:blob_id>', methods=['DELETE'])
 def delete_file(blob_id):
     """删除文件"""
     if BlobService.delete_blob(blob_id):

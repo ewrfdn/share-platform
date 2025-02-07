@@ -2,8 +2,8 @@ import jwt
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import request, jsonify
-from config import Config
-from ..models.user import User
+from app.config import Config
+from app.models.user import User
 from typing import List, Optional
 
 def create_access_token(identity: int) -> str:
@@ -29,7 +29,7 @@ def jwt_required(allowed_roles: Optional[List[int]] = None):
     JWT认证装饰器
     :param allowed_roles: 允许访问的角色ID列表，为None时表示允许所有角色访问
     """
-    def decorator(fn):
+    def jwd_decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             token = request.headers.get('Authorization')
@@ -59,4 +59,4 @@ def jwt_required(allowed_roles: Optional[List[int]] = None):
                 
             return fn(*args, **kwargs)
         return wrapper
-    return decorator 
+    return jwd_decorator 

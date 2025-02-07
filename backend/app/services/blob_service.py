@@ -2,7 +2,7 @@ import os
 import hashlib
 from werkzeug.utils import secure_filename
 from flask import current_app, send_file
-from ..models.blob import Blob
+from app.models.blob import Blob
 from typing import Optional, Tuple
 import mimetypes
 

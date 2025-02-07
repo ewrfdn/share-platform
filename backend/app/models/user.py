@@ -1,6 +1,6 @@
 from peewee import *
 from datetime import datetime
-from .base import BaseModel
+from app.models.base import BaseModel
 
 class User(BaseModel):
     username = CharField(unique=True)

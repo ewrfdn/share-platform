@@ -1,7 +1,7 @@
 from peewee import *
-from .base import BaseModel
-from .user import User
-from .material import Material
+from app.models.base import BaseModel
+from app.models.user import User
+from app.models.material import Material
 
 class Comment(BaseModel):
     material = ForeignKeyField(Material, backref='comments')

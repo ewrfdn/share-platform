@@ -1,7 +1,7 @@
 from typing import List, Optional
 from werkzeug.security import generate_password_hash, check_password_hash
-from ..models.user import User
-from ..models.role import Role
+from app.models.user import User
+from app.models.role import Role
 from flask import abort
 
 class UserService:

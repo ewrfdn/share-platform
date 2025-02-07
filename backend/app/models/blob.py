@@ -1,5 +1,5 @@
 from peewee import *
-from .base import BaseModel
+from app.models.base import BaseModel
 
 class Blob(BaseModel):
     file_name = CharField()

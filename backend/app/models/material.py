@@ -1,6 +1,6 @@
 from peewee import *
-from .base import BaseModel
-from .blob import Blob
+from app.models.base import BaseModel
+from app.models.blob import Blob
 
 class Material(BaseModel):
     display_name = CharField()
