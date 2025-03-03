@@ -15,13 +15,14 @@ const axiosInstance = axios.create({
   timeout: 3600 * 1000,
   responseType: 'json',
   headers: {
-    'X-Requested-With': 'XMLHttpRequest'
+    'X-Requested-With': 'XMLHttpRequest',
   }
 })
 
 axiosInstance.interceptors.request.use(
   config => {
     config.headers['Content-Type'] = ContentType[config.data instanceof FormData ? 'formData' : 'json']
+    config.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`
     return config
   },
   error => {

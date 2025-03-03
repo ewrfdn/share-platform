@@ -1,10 +1,18 @@
+-- 设置连接和客户端字符集
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+SET collation_connection = utf8mb4_unicode_ci;
+
 -- 创建数据表
 CREATE TABLE IF NOT EXISTS roles (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     display_name VARCHAR(255) NOT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
-);
+)CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -14,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
     avatar VARCHAR(255),
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
-);
+)CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -22,7 +30,7 @@ CREATE TABLE IF NOT EXISTS categories (
     parent_id INTEGER,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
-);
+)CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS blobs (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -33,7 +41,7 @@ CREATE TABLE IF NOT EXISTS blobs (
     sha256 VARCHAR(64) NOT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
-);
+)CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS materials (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -44,8 +52,8 @@ CREATE TABLE IF NOT EXISTS materials (
     cover VARCHAR(255),
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
-    FOREIGN KEY (blob_id) REFERENCES blobs(id)
-);
+    FOREIGN KEY (blob_id) REFERENCES blobs(id) 
+)CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -56,7 +64,7 @@ CREATE TABLE IF NOT EXISTS comments (
     updated_at DATETIME NOT NULL,
     FOREIGN KEY (material_id) REFERENCES materials(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
-);
+)CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 插入角色数据
 INSERT INTO roles (id, display_name, created_at, updated_at) VALUES
@@ -81,4 +89,4 @@ ALTER TABLE users ADD INDEX idx_username (username);
 ALTER TABLE materials ADD INDEX idx_blob_id (blob_id);
 ALTER TABLE comments ADD INDEX idx_material_id (material_id);
 ALTER TABLE comments ADD INDEX idx_user_id (user_id);
-ALTER TABLE categories ADD INDEX idx_parent_id (parent_id); 
+ALTER TABLE categories ADD INDEX idx_parent_id (parent_id);

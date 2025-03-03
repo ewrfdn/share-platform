@@ -9,5 +9,9 @@ docker run --name teaching-material-mysql `
     -p 3306:3306 `
     -e MYSQL_ROOT_PASSWORD=password `
     -e MYSQL_DATABASE=teaching_material `
+    -e MYSQL_CHARSET=utf8mb4 `
+    -e MYSQL_COLLATION=utf8mb4_unicode_ci `
     -v ${PWD}/mysql/init:/docker-entrypoint-initdb.d `
-    -d mysql:8.0
+    -d mysql:8.0 `
+    --character-set-server=utf8mb4 `
+    --collation-server=utf8mb4_unicode_ci

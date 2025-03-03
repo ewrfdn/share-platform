@@ -15,7 +15,7 @@ const publicRoutes = [
   },
   {
     path: '/',
-    redirect: '/login'
+    // redirect: '/login'  // 默认重定向到登录页，后续会被路由守卫处理
   }
 ]
 
@@ -34,12 +34,26 @@ router.beforeEach((to, from, next) => {
   if (to.meta.title) {
     document.title = `${to.meta.title} - 教材制作分享系统`
   }
-
+  // 根据角色重定向首页
+  if (to.path === '/') {
+    if (userInfo.role_id === 1 || userInfo.role_id === 2) {
+      // 管理员或教师跳转到管理界面
+      next('/admin')
+    } else if (userInfo.role_id === 3) {
+      // 学生跳转到用户界面
+      next('/user')
+    } else {
+      // 未知角色，默认重定向到登录页
+      next('/login')
+    }
+    return
+  }
   // 不需要认证的路由直接通过
   if (!to.meta.requiresAuth) {
     next()
     return
   }
+  console.log("accessToken", accessToken)
 
   // 需要认证但没有token，跳转到登录页
   if (!accessToken) {
@@ -59,11 +73,7 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  // 根据角色重定向首页
-  if (to.path === '/') {
-    next(userInfo.role_id === 3 ? '/user' : '/admin')
-    return
-  }
+
 
   next()
 })

@@ -6,5 +6,6 @@ db = MySQLDatabase(
     user=Config.DB_USER,
     password=Config.DB_PASSWORD,
     host=Config.DB_HOST,
-    port=Config.DB_PORT
+    port=Config.DB_PORT,
+    charset='utf8mb4'
 )

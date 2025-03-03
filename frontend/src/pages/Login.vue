@@ -58,7 +58,9 @@ const handleSubmit = async () => {
             // 获取重定向地址或根据角色跳转
             const redirect = route.query.redirect ||
                 (res.user.role_id === 3 ? '/user' : '/admin')
-            router.push(redirect)
+            setTimeout(() => {
+                router.push(redirect)
+            }, 1000)
         }
     } catch (error) {
         console.error('登录错误:', error)

@@ -2,7 +2,7 @@
     <a-layout class="layout-container">
         <a-layout-sider v-model:collapsed="collapsed" collapsible>
             <div class="logo">
-                <img src="@/assets/logo.png" alt="Logo" />
+                <img src="/vite.svg" alt="Logo" />
                 <span v-show="!collapsed">教材管理系统</span>
             </div>
             <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
