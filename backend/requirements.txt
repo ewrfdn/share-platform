@@ -8,3 +8,5 @@ werkzeug==2.0.1
 cryptography==42.0.2
 bcrypt
 pytz
+pydantic
+orjson==3.9.10

@@ -1,4 +1,5 @@
 import request from '@/utils/http/axios'
+import { categoryApi } from './category'
 
 
 /**
@@ -8,15 +9,15 @@ import request from '@/utils/http/axios'
 export const userApi = {
   /**
    * 获取所有用户
-   * GET /api/admin/users
+   * GET /api/user/users
    */
   getAllUsers() {
-    return request.get('/api/admin/users');
+    return request.get('/api/user/users');
   },
 
   /**
    * 创建用户
-   * POST /api/admin/users
+   * POST /api/user/users
    * @param {Object} userData - 用户数据
    * @param {string} userData.username - 用户名
    * @param {string} userData.password - 密码
@@ -24,12 +25,12 @@ export const userApi = {
    * @param {string} [userData.avatar] - 头像URL (可选)
    */
   createUser(userData) {
-    return request.post('/api/admin/users', userData);
+    return request.post('/api/user/users', userData);
   },
 
   /**
    * 更新用户
-   * PUT /api/admin/users/:id
+   * PUT /api/user/users/:id
    * @param {number} userId - 用户ID
    * @param {Object} userData - 用户数据
    * @param {string} [userData.password] - 密码 (可选，留空表示不修改)
@@ -37,16 +38,16 @@ export const userApi = {
    * @param {string} [userData.avatar] - 头像URL (可选)
    */
   updateUser(userId, userData) {
-    return request.put(`/api/admin/users/${userId}`, userData);
+    return request.put(`/api/user/users/${userId}`, userData);
   },
 
   /**
    * 删除用户
-   * DELETE /api/admin/users/:id
+   * DELETE /api/user/users/:id
    * @param {number} userId - 用户ID
    */
   deleteUser(userId) {
-    return request.delete(`/api/admin/users/${userId}`);
+    return request.delete(`/api/user/users/${userId}`);
   }
 };
 
@@ -60,7 +61,7 @@ export const roleApi = {
    * GET /api/roles
    */
   getAllRoles() {
-    return request.get('/api/roles');
+    return request.get('/api/role/roles');
   }
 };
 
@@ -130,9 +131,13 @@ export const blobApi = {
    * @param {number} blobId - 文件ID
    */
   downloadFile(blobId) {
-    return request.get(`/api/blob/${blobId}/download`, {
+    return request.get(`/api/blob/preview/${blobId}`, {
       responseType: 'blob'
     });
+  },
+
+  getBlobUrl(blobId) {
+    return request.baseUrl + `api/blob/preview/${blobId}`;
   }
 };
 
@@ -140,5 +145,6 @@ export default {
   user: userApi,
   role: roleApi,
   auth: authApi,
-  blob: blobApi
+  blob: blobApi,
+  category: categoryApi
 };

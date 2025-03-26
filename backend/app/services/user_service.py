@@ -4,7 +4,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
 from app.models.role import Role
-from flask import abort
+from flask import abort, request
 
 class UserService:
     @staticmethod
@@ -48,7 +48,9 @@ class UserService:
             password=password_hash,
             role_id=role_id,
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
+            created_by=request.user_id,
+            updated_by=request.user_id
         )
 
     @staticmethod
@@ -117,6 +119,7 @@ class UserService:
             user.password = password_hash
 
         user.updated_at = datetime.now()
+        user.updated_by = request.user_id
         user.save()
         return user
 

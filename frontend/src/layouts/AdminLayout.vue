@@ -13,6 +13,28 @@
                     <router-link to="/admin">首页</router-link>
                 </a-menu-item>
 
+                <!-- 教材相关管理菜单 -->
+                <a-sub-menu key="materials">
+                    <template #icon>
+                        <book-outlined />
+                    </template>
+                    <template #title>教材管理</template>
+                    <a-menu-item key="materials-list">
+                        <router-link to="/admin/materials">教材列表</router-link>
+                    </a-menu-item>
+                    <a-menu-item key="comments">
+                        <router-link to="/admin/comments">评论管理</router-link>
+                    </a-menu-item>
+                </a-sub-menu>
+
+                <!-- 教材分类管理 -->
+                <a-menu-item key="categories">
+                    <template #icon>
+                        <folder-outlined />
+                    </template>
+                    <router-link to="/admin/categories">分类管理</router-link>
+                </a-menu-item>
+
                 <!-- 管理员和教师可见 -->
                 <a-menu-item v-if="userInfo.role_id <= 2" key="users">
                     <template #icon>
@@ -73,7 +95,9 @@ import {
     HomeOutlined,
     UserOutlined,
     TeamOutlined,
-    LogoutOutlined
+    LogoutOutlined,
+    BookOutlined,
+    FolderOutlined
 } from '@ant-design/icons-vue'
 
 const router = useRouter()

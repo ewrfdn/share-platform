@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import userRoutes from './user'
 import adminRoutes from './admin'
+import AdminLayout from '../layouts/AdminLayout.vue'
 
 // 公共路由
 const publicRoutes = [
@@ -8,7 +9,7 @@ const publicRoutes = [
     path: '/login',
     name: 'Login',
     component: () => import('@/pages/Login.vue'),
-    meta: { 
+    meta: {
       requiresAuth: false,
       title: '登录'
     }
@@ -19,9 +20,11 @@ const publicRoutes = [
   }
 ]
 
+const routes = [...publicRoutes, userRoutes, adminRoutes]
+
 const router = createRouter({
   history: createWebHistory(),
-  routes: [...publicRoutes, userRoutes, adminRoutes]
+  routes
 })
 
 // 路由守卫
@@ -29,7 +32,7 @@ router.beforeEach((to, from, next) => {
   // 获取存储的用户信息
   const accessToken = localStorage.getItem('accessToken')
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-  
+
   // 设置页面标题
   if (to.meta.title) {
     document.title = `${to.meta.title} - 教材制作分享系统`
@@ -72,8 +75,6 @@ router.beforeEach((to, from, next) => {
     })
     return
   }
-
-
 
   next()
 })

@@ -2,6 +2,8 @@ from typing import List, Optional, Dict, Any
 from app.models.category import Category
 from app.exceptions.customer_exceptions import NotFoundException, BadRequestException
 from peewee import DoesNotExist, IntegrityError
+from datetime import datetime
+from flask import request
 
 
 class CategoryService:
@@ -91,7 +93,14 @@ class CategoryService:
                 except DoesNotExist:
                     raise NotFoundException(f"Parent category with ID {parent_id} not found")
             
-            category = Category.create(display_name=display_name, parent_id=parent_id)
+            category = Category.create(
+                display_name=display_name, 
+                parent_id=parent_id,
+                created_by=request.user_id,
+                updated_by=request.user_id,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
             return category.to_json()
         except IntegrityError as e:
             raise BadRequestException(f"Error creating category: {str(e)}")
@@ -128,6 +137,10 @@ class CategoryService:
                         raise NotFoundException(f"Parent category with ID {parent_id} not found")
                 
                 category.parent_id = parent_id
+            
+            # Update the updated_by and updated_at fields
+            category.updated_by = request.user_id
+            category.updated_at = datetime.now()
             
             category.save()
             return category.to_json()

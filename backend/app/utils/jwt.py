@@ -5,6 +5,7 @@ from flask import request, jsonify
 from app.config import Config
 from app.models.user import User
 from typing import List, Optional
+import uuid
 
 def create_access_token(identity: int) -> str:
     """
@@ -29,7 +30,7 @@ def jwt_required(allowed_roles: Optional[List[int]] = None):
     JWT认证装饰器
     :param allowed_roles: 允许访问的角色ID列表，为None时表示允许所有角色访问
     """
-    def jwd_decorator(fn):
+    def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             token = request.headers.get('Authorization')
@@ -59,4 +60,4 @@ def jwt_required(allowed_roles: Optional[List[int]] = None):
                 
             return fn(*args, **kwargs)
         return wrapper
-    return jwd_decorator 
+    return decorator 

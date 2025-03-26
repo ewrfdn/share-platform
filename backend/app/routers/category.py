@@ -6,7 +6,7 @@ from app.exceptions.customer_exceptions import NotFoundException, BadRequestExce
 category_bp = Blueprint('category', __name__)
 
 @category_bp.route('/categories', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_categories():
     """Get all categories"""
     try:
@@ -19,7 +19,7 @@ def get_categories():
         return jsonify({"message": str(e)}), 500
 
 @category_bp.route('/categories/tree', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_category_tree():
     """Get categories in tree structure"""
     try:
@@ -32,7 +32,7 @@ def get_category_tree():
         return jsonify({"message": str(e)}), 500
 
 @category_bp.route('/categories/<int:category_id>', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_category_by_id(category_id):
     """Get a specific category by ID"""
     try:
@@ -47,7 +47,7 @@ def get_category_by_id(category_id):
         return jsonify({"message": str(e)}), 500
 
 @category_bp.route('/categories/<int:category_id>/children', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_category_children(category_id):
     """Get direct children of a category"""
     try:
@@ -62,7 +62,7 @@ def get_category_children(category_id):
         return jsonify({"message": str(e)}), 500
 
 @category_bp.route('/categories/<int:category_id>/descendants', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_category_descendants(category_id):
     """Get all descendants of a category"""
     try:

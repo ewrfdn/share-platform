@@ -1,17 +1,21 @@
 import os
 import hashlib
+import shutil
 from werkzeug.utils import secure_filename
 from flask import current_app, send_file
 from app.models.blob import Blob
 from typing import Optional, Tuple
 import mimetypes
+from app.exceptions.customer_exceptions import NotFoundException, ValidationException
 
 class BlobService:
     @staticmethod
-    def _calculate_sha256(file_data: bytes) -> str:
+    def _calculate_sha256(file_path: str) -> str:
         """计算文件的SHA256哈希值"""
         sha256_hash = hashlib.sha256()
-        sha256_hash.update(file_data)
+        with open(file_path, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b''):
+                sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
 
     @staticmethod
@@ -28,33 +32,26 @@ class BlobService:
         # 返回完整的文件路径
         return os.path.join(directory, f"{sha256}_{secure_filename(filename)}")
 
-    @classmethod
-    def create_blob(cls, file) -> Tuple[Blob, bool]:
-        """
-        创建文件记录
-        返回: (blob对象, 是否为新创建)
-        """
+    @staticmethod
+    def create_blob(temp_path: str, filename: str, mime_type: str) -> Blob:
+        """创建blob记录"""
         try:
-            # 读取文件内容
-            file_data = file.read()
-            file.seek(0)  # 重置文件指针位置
-            
-            # 获取文件信息
-            filename = secure_filename(file.filename)
-            file_size = len(file_data)
-            sha256 = cls._calculate_sha256(file_data)
-            mime_type = file.content_type or mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+            # 计算文件大小和SHA256
+            file_size = os.path.getsize(temp_path)
+            sha256 = BlobService._calculate_sha256(temp_path)
 
             # 检查是否已存在相同的文件
             existing_blob = Blob.get_or_none(Blob.sha256 == sha256)
             if existing_blob:
-                return existing_blob, False
+                # 删除临时文件
+                os.remove(temp_path)
+                return existing_blob
 
-            # 生成存储路径
-            file_path = cls._get_file_path(filename, sha256)
-
-            # 保存文件
-            file.save(file_path)
+            # 生成最终存储路径
+            file_path = BlobService._get_file_path(filename, sha256)
+            
+            # 移动文件到最终位置
+            shutil.move(temp_path, file_path)
 
             # 创建数据库记录
             blob = Blob.create(
@@ -64,17 +61,33 @@ class BlobService:
                 file_size=file_size,
                 sha256=sha256
             )
-
-            return blob, True
+            return blob
 
         except Exception as e:
-            current_app.logger.error(f"创建Blob失败: {str(e)}")
-            raise
+            # 清理临时文件
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            raise ValidationException(f"Failed to create blob: {str(e)}")
 
     @staticmethod
-    def get_blob_by_id(blob_id: int) -> Optional[Blob]:
-        """根据ID获取Blob记录"""
-        return Blob.get_or_none(Blob.id == blob_id)
+    def get_blob(blob_id: int) -> Blob:
+        """获取blob记录"""
+        blob = Blob.get_or_none(Blob.id == blob_id)
+        if not blob:
+            raise NotFoundException(f"Blob with id {blob_id} not found")
+        return blob
+
+    @staticmethod
+    def delete_blob(blob_id: int) -> None:
+        """删除blob记录和文件"""
+        blob = BlobService.get_blob(blob_id)
+        
+        # 删除文件
+        if os.path.exists(blob.file_path):
+            os.remove(blob.file_path)
+        
+        # 删除数据库记录
+        blob.delete_instance()
 
     @staticmethod
     def get_file_content(blob_id: int):
@@ -91,19 +104,4 @@ class BlobService:
             mimetype=blob.mime_type,
             as_attachment=True,
             download_name=blob.file_name
-        )
-
-    @staticmethod
-    def delete_blob(blob_id: int) -> bool:
-        """删除Blob记录及对应的文件"""
-        blob = Blob.get_or_none(Blob.id == blob_id)
-        if not blob:
-            return False
-
-        # 删除物理文件
-        if os.path.exists(blob.file_path):
-            os.remove(blob.file_path)
-
-        # 删除数据库记录
-        blob.delete_instance()
-        return True 
+        ) 

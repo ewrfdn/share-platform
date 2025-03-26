@@ -1,10 +1,14 @@
 from flask import Flask, make_response, jsonify
 from flask_cors import CORS
 from app.config import Config
-from app.routes.blob import blob_bp
-from app.routes.user import user_bp
-from app.routes.auth import auth_bp
-from .routes.role import role_bp
+from app.routers.auth import auth_bp
+from app.routers.role import role_bp
+from app.routers.user import user_bp
+from app.routers.category import category_bp
+from app.routers.material import material_bp
+from app.routers.blob import blob_bp
+import orjson
+
 
 def create_app(config_name=None):
     app = Flask(__name__)
@@ -27,6 +31,10 @@ def create_app(config_name=None):
     # 配置CORS
     CORS(app)
     
+    # 配置上传文件夹
+    app.config['UPLOAD_FOLDER'] = 'uploads'
+    
+    # 使用 orjson 进行 JSON 序列化
     # 服务检测
     @app.route('/', methods=['GET'])
     def health():
@@ -34,8 +42,10 @@ def create_app(config_name=None):
     
     # 注册蓝图
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(role_bp, url_prefix='/api/role')
+    app.register_blueprint(user_bp, url_prefix='/api/user')
+    app.register_blueprint(category_bp, url_prefix='/api/category')
+    app.register_blueprint(material_bp, url_prefix='/api/material')
     app.register_blueprint(blob_bp, url_prefix='/api/blob')
-    app.register_blueprint(user_bp, url_prefix='/api/admin')
-    app.register_blueprint(role_bp, url_prefix='/api')
     
     return app

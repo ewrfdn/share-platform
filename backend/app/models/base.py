@@ -32,6 +32,10 @@ class BaseModel(Model):
         if isinstance(value, str):
             return value
 
+        # Handle model instances (for joined queries)
+        if isinstance(value, Model):
+            return value.to_json() if hasattr(value, 'to_json') else str(value)
+
         if field_type == UUIDField:
             return str(value)
         elif field_type == DateTimeField:
@@ -40,5 +44,13 @@ class BaseModel(Model):
             )
         elif field_type == DateField:
             return value.strftime("%Y-%m-%d")
-        else:
+        elif isinstance(field_type, (ForeignKeyField, DeferredForeignKey)):
+            # Handle foreign key fields
+            if isinstance(value, Model):
+                return value.to_json() if hasattr(value, 'to_json') else str(value)
             return value
+        return value
+
+    def save(self, *args, **kwargs):
+        self.updated_at = datetime.now()
+        return super().save(*args, **kwargs)

@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS roles (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     display_name VARCHAR(255) NOT NULL,
     created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL
+    updated_at DATETIME NOT NULL,
+    created_by INTEGER,
+    updated_by INTEGER
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -21,7 +23,11 @@ CREATE TABLE IF NOT EXISTS users (
     role_id INTEGER NOT NULL,
     avatar VARCHAR(255),
     created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL
+    updated_at DATETIME NOT NULL,
+    created_by INTEGER,
+    updated_by INTEGER,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (updated_by) REFERENCES users(id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -29,7 +35,11 @@ CREATE TABLE IF NOT EXISTS categories (
     display_name VARCHAR(255) NOT NULL,
     parent_id INTEGER,
     created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL
+    updated_at DATETIME NOT NULL,
+    created_by INTEGER,
+    updated_by INTEGER,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (updated_by) REFERENCES users(id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS blobs (
@@ -40,7 +50,11 @@ CREATE TABLE IF NOT EXISTS blobs (
     file_size BIGINT NOT NULL,
     sha256 VARCHAR(64) NOT NULL,
     created_at DATETIME NOT NULL,
-    updated_at DATETIME NOT NULL
+    updated_at DATETIME NOT NULL,
+    created_by INTEGER,
+    updated_by INTEGER,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (updated_by) REFERENCES users(id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS materials (
@@ -49,10 +63,16 @@ CREATE TABLE IF NOT EXISTS materials (
     category_ids VARCHAR(255) NOT NULL,
     blob_id INTEGER NOT NULL,
     description TEXT,
-    cover VARCHAR(255),
+    cover MEDIUMTEXT,
+    publish_status VARCHAR(20) DEFAULT 'private',
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
-    FOREIGN KEY (blob_id) REFERENCES blobs(id) 
+    created_by INTEGER,
+    updated_by INTEGER,
+    material_type VARCHAR(20) DEFAULT 'upload',
+    FOREIGN KEY (blob_id) REFERENCES blobs(id),
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (updated_by) REFERENCES users(id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS comments (
@@ -62,8 +82,12 @@ CREATE TABLE IF NOT EXISTS comments (
     content TEXT NOT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
+    created_by INTEGER,
+    updated_by INTEGER,
     FOREIGN KEY (material_id) REFERENCES materials(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (updated_by) REFERENCES users(id)
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 插入角色数据
@@ -76,13 +100,16 @@ INSERT INTO roles (id, display_name, created_at, updated_at) VALUES
 INSERT INTO users (username, password, role_id, created_at, updated_at) VALUES
 ('admin', 'pbkdf2:sha256:260000$V1wE5O9NLHtSzAQT$7ba850e237c212bc489a15c3d416ebd3aa7901b4e62c4814c275a19f8315fb62', 1, NOW(), NOW());
 
+-- 更新管理员用户的created_by和updated_by为自己
+UPDATE users SET created_by = 1, updated_by = 1 WHERE id = 1;
+
 -- 插入示例分类数据
-INSERT INTO categories (display_name, parent_id, created_at, updated_at) VALUES
-('教学资料', NULL, NOW(), NOW()),
-('课件', 1, NOW(), NOW()),
-('教案', 1, NOW(), NOW()),
-('试卷', 1, NOW(), NOW()),
-('教学视频', NULL, NOW(), NOW());
+INSERT INTO categories (display_name, parent_id, created_at, updated_at, created_by, updated_by) VALUES
+('教学资料', NULL, NOW(), NOW(), 1, 1),
+('课件', 1, NOW(), NOW(), 1, 1),
+('教案', 1, NOW(), NOW(), 1, 1),
+('试卷', 1, NOW(), NOW(), 1, 1),
+('教学视频', NULL, NOW(), NOW(), 1, 1);
 
 -- 添加索引
 ALTER TABLE users ADD INDEX idx_username (username);

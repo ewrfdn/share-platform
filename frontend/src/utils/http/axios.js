@@ -65,5 +65,5 @@ axiosInstance.interceptors.response.use(
     return false
   }
 )
-
+axiosInstance.baseUrl = baseURL
 export default axiosInstance

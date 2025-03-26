@@ -2,9 +2,22 @@
   <div class="user-management-container">
     <a-card title="用户管理" :bordered="false">
       <template #extra>
-        <a-button type="primary" @click="showAddUserModal">
+        <a-button type="primary" @click="showAddUserModal" class="button-spacing">
           <plus-outlined /> 添加用户
         </a-button>
+        <a-button type="default" @click="downloadTemplate" class="button-spacing">
+          下载模板
+        </a-button>
+        <a-upload 
+          accept=".xls,.xlsx" 
+          @change="handleUpload" 
+          show-upload-list="false"
+          class="button-spacing"
+        >
+          <a-button type="default">
+            导入用户
+          </a-button>
+        </a-upload>
       </template>
       
       <!-- 用户列表表格 -->
@@ -90,7 +103,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
-import { message } from 'ant-design-vue';
+import { message, Upload } from 'ant-design-vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { admin } from '@/api';
 
@@ -272,7 +285,6 @@ const createUser = async () => {
 const updateUser = async () => {
   confirmLoading.value = true;
   try {
-    // 如果没有输入密码，则从表单中删除密码字段
     const userData = { ...userForm };
     if (!userData.password) {
       delete userData.password;
@@ -323,6 +335,41 @@ const handleTableChange = (pag, filters, sorter) => {
   console.log('Table change:', pag, filters, sorter);
 };
 
+// 下载用户导入模板
+const downloadTemplate = async () => {
+  try {
+    const response = await admin.user.downloadTemplate(); // Use admin.user to download the template
+    const link = document.createElement('a');
+    link.href = response.url; // Assuming the response contains the URL for the template
+    link.setAttribute('download', '用户导入模板.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('下载模板失败:', error);
+    message.error('下载模板失败');
+  }
+};
+
+// 处理上传
+const handleUpload = async (info) => {
+  if (info.file.status === 'done') {
+    try {
+      const formData = new FormData();
+      formData.append('file', info.file.originFileObj); // Append the uploaded file
+
+      await admin.user.importUsers(formData); // Use admin.user to import users
+      message.success(`${info.file.name} 文件上传成功`);
+      fetchUsers(); // Refresh the user list after upload
+    } catch (error) {
+      message.error(`${info.file.name} 文件上传失败`);
+      console.error('上传文件失败:', error);
+    }
+  } else if (info.file.status === 'error') {
+    message.error(`${info.file.name} 文件上传失败`);
+  }
+};
+
 // 生命周期钩子 - 组件挂载后执行
 onMounted(() => {
   getCurrentUserRole();
@@ -334,5 +381,9 @@ onMounted(() => {
 <style scoped>
 .user-management-container {
   padding: 24px;
+}
+
+.button-spacing {
+  margin-right: 8px; /* Adjust the value as needed for spacing */
 }
 </style>
