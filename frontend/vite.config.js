@@ -14,6 +14,12 @@ export default defineConfig({
         }),],
     }),
   ],
+  optimizeDeps: {
+    include: [
+      "@wangeditor/editor",
+      "@wangeditor/editor-for-vue"
+    ]
+  },
   css: {
     preprocessorOptions: {
       less: {
@@ -23,9 +29,8 @@ export default defineConfig({
 
   build: {
     rollupOptions: {
-
-      // external: ['axios'],
     },
+
   },
 
   resolve: {

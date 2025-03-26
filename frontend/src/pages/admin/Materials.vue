@@ -278,7 +278,7 @@ const fetchMaterials = async (params = {}) => {
             display_name: searchForm.value.display_name,
             description: searchForm.value.description,
             category_ids: searchForm.value.category_ids?.join(','),
-            type: searchForm.value.material_type
+            material_type: searchForm.value.material_type
         });
         materials.value = response.items.map(item => ({
             ...item,
@@ -310,7 +310,7 @@ const showUploadModal = () => {
         description: '',
         cover: '',
         file: null,
-        type: 'upload'
+        material_type: 'upload'
     };
     dialogVisible.value = true;
 };
@@ -323,7 +323,7 @@ const showCreateModal = () => {
         category_ids: [],
         description: '',
         cover: '',
-        type: 'create'
+        material_type: 'create'
     };
     dialogVisible.value = true;
 };

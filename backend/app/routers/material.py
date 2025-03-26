@@ -43,11 +43,11 @@ def create_material():
             'category_ids': request.form.get('category_ids'),
             'description': request.form.get('description'),
             'cover': request.form.get('cover'),
-            'type': request.form.get('type')
+            'material_type': request.form.get('material_type'),
         }
         
         # 验证必填字段
-        if not all([data['display_name'], data['category_ids'], data['type']]):
+        if not all([data['display_name'], data['category_ids'], data['material_type']]):
             return orjson.dumps({'message': 'Missing required fields'}), 400, {'Content-Type': 'application/json'}
             
         material = MaterialService.create_material(data, request.user_id)
@@ -55,7 +55,7 @@ def create_material():
             'id': material.id,
             'display_name': material.display_name,
             'category_ids': material.category_ids,
-            'type': material.type,
+            'material_type': material.material_type,
             'created_at': material.created_at.isoformat()
         }
         return orjson.dumps(response), 201, {'Content-Type': 'application/json'}

@@ -51,14 +51,14 @@ class MaterialService:
             ]
             query = query.where(conditions[0] if len(conditions) == 1 else reduce(operator.or_, conditions))
         if type:
-            query = query.where(Material.type == type)
+            query = query.where(Material.material_type == type)
         return paginate_query(query, page, page_size)
 
     @staticmethod
     def create_material(data: Dict, current_user_id: int) -> Material:
         """创建教材"""
         # 验证必填字段
-        required_fields = ['display_name', 'category_ids', 'type']
+        required_fields = ['display_name', 'category_ids', 'material_type']
         for field in required_fields:
             if field not in data:
                 raise ValidationException(f"Missing required field: {field}")
@@ -165,25 +165,21 @@ class MaterialService:
         material = Material.get_or_none(Material.id == material_id)
         if not material:
             raise NotFoundException("Material not found")
-
-        if material.type == 'create':
-            return material.content or ""
-        else:
-            blob = Blob.get_or_none(Blob.id == material.blob_id)
-            if not blob:
-                raise NotFoundException("Material blob not found")
-            return blob.file_path
-
+        blob = Blob.get_or_none(Blob.id == material.blob_id)
+        if not blob:
+            raise NotFoundException("Material blob not found")
+        with open(blob.file_path, 'rb') as file:
+            content = file.read()
+        return content.decode('utf-8')
     @staticmethod
     def save_material_content(material_id: int, content: str, current_user_id: int) -> Material:
         material = Material.get_or_none(Material.id == material_id)
         if not material:
             raise NotFoundException("Material not found")
 
-        if material.type != 'create':
+        if material.material_type != 'create':
             raise ValidationException("Cannot save content for upload type material")
 
-        material.content = content
         material.updated_by = request.user_id
         material.updated_at = datetime.now()
         material.save()

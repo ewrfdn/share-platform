@@ -27,6 +27,15 @@ const adminRoutes = {
       }
     },
     {
+      path: 'materials/:id/edit',
+      name: 'MaterialsEdit',
+      component: () => import('../pages/admin/MaterialEditor.vue'),
+      meta: {
+        title: '教材编辑',
+        roles: [1, 2]
+      }
+    },
+    {
       path: 'categories',
       name: 'CategoriesManagement',
       component: () => import('../pages/admin/Categories.vue'),

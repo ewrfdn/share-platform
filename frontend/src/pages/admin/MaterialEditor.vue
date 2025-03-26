@@ -10,66 +10,66 @@
             </div>
         </div>
 
-        <!-- 富文本编辑器 -->
+        <!-- Vditor 编辑器 -->
         <div class="editor-content">
-            <Toolbar
-                style="border-bottom: 1px solid #ccc"
-                :editor="editorRef"
-                :defaultConfig="toolbarConfig"
-                mode="default"
-            />
-            <Editor
-                style="height: calc(100vh - 180px); overflow-y: hidden;"
-                v-model="editorContent"
-                :defaultConfig="editorConfig"
-                mode="default"
-                @onCreated="handleCreated"
-            />
+            <div ref="editorRef"></div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, shallowRef, onBeforeUnmount, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import '@wangeditor/editor/dist/css/style.css'
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import Vditor from 'vditor'
+import 'vditor/dist/index.css'
 import { materialApi } from '@/api/material'
 
 const route = useRoute()
 const router = useRouter()
 const materialId = route.params.id
 
-// 编辑器实例，必须用 shallowRef
-const editorRef = shallowRef()
+const editorRef = ref(null)
 const material = ref(null)
-const editorContent = ref('')
+const vditor = ref(null)
 
-// 工具栏配置
-const toolbarConfig = {
-    excludeKeys: []
+// 初始化编辑器
+const initEditor = () => {
+    vditor.value = new Vditor(editorRef.value, {
+        height: 'calc(100vh - 380px)',
+        mode: 'wysiwyg',
+        cache: {
+            enable: true,
+            id: `vditor-${materialId}` // 使用教材ID作为缓存标识
+        },
+        toolbar: [
+            'emoji', 'headings', 'bold', 'italic', 'strike', 'link', '|',
+            'list', 'ordered-list', 'check', 'outdent', 'indent', '|',
+            'quote', 'line', 'code', 'inline-code', '|',
+            'upload', 'table', '|',
+            'undo', 'redo', '|',
+            'fullscreen'
+        ],
+        upload: {
+            accept: 'image/*',
+            handler: async (files) => {
+                // 处理文件上传
+                // 根据实际需求实现
+            }
+        },
+        after: () => {
+            fetchMaterialContent()
+        }
+    })
 }
-
-// 编辑器配置
-const editorConfig = {
-    placeholder: '请输入内容...',
-    autoFocus: false,
-    MENU_CONF: {}
-}
-
-// 组件销毁时，也及时销毁编辑器
-onBeforeUnmount(() => {
-    const editor = editorRef.value
-    if (editor == null) return
-    editor.destroy()
-})
 
 // 获取教材内容
 const fetchMaterialContent = async () => {
     try {
         const response = await materialApi.getMaterialContent(materialId)
-        editorContent.value = response.data || ''
+        if (vditor.value) {
+            vditor.value.setValue(response.data || '')
+        }
     } catch (error) {
         message.error('获取教材内容失败')
     }
@@ -78,8 +78,11 @@ const fetchMaterialContent = async () => {
 // 保存教材
 const saveMaterial = async () => {
     try {
-        await materialApi.saveMaterialContent(materialId, editorContent.value)
-        message.success('保存成功')
+        if (vditor.value) {
+            const content = vditor.value.getValue()
+            await materialApi.saveMaterialContent(materialId, content)
+            message.success('保存成功')
+        }
     } catch (error) {
         message.error('保存失败')
     }
@@ -90,14 +93,13 @@ const goBack = () => {
     router.push('/admin/materials')
 }
 
-// 编辑器创建完成时的回调
-const handleCreated = (editor) => {
-    editorRef.value = editor
-}
-
 onMounted(() => {
-    if (materialId) {
-        fetchMaterialContent()
+    initEditor()
+})
+
+onBeforeUnmount(() => {
+    if (vditor.value) {
+        vditor.value.destroy()
     }
 })
 </script>
@@ -117,9 +119,6 @@ onMounted(() => {
 .editor-content {
     border: 1px solid #ccc;
     border-radius: 4px;
+    background: #fff;
 }
-
-:deep(.w-e-text-container) {
-    height: calc(100vh - 180px) !important;
-}
-</style> 
+</style>
